@@ -22,17 +22,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+ALLOWED_HOSTS = [os.environ['WEBSITE_HOSTNAME']] if 'WEBSITE_HOSTNAME' in os.environ else []
+CSRF_TRUSTED_ORIGINS = ['https://' + os.environ['WEBSITE_HOSTNAME']] if 'WEBSITE_HOSTNAME' in os.environ else []
+DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
-
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-
+if 'CODESPACE_NAME' in os.environ:
+    CSRF_TRUSTED_ORIGINS = [f'https://{os.getenv("CODESPACE_NAME")}-8000.{os.getenv("GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN")}']
+    
 #AUTH_USER_MODEL = 'panel.CustomUser'
 
 # Application definition
@@ -81,18 +79,18 @@ TEMPLATES = [
 WSGI_APPLICATION = 'controlaesadiacsa.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
+# Configure Postgres database based on connection string of the libpq Keyword/Value form
+# https://www.postgresql.org/docs/current/libpq-connect.html#LIBPQ-CONNSTRING
+conn_str = os.environ['AZURE_POSTGRESQL_CONNECTIONSTRING']
+conn_str_params = {pair.split('=')[0]: pair.split('=')[1] for pair in conn_str.split(' ')}
 DATABASES = {
-     'default': {
+    'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'dbaesademo_v2',
-        'USER': 'dbaesademo_v2_user',
-        'PASSWORD': 'EYUlEgOMkCPqWnaLhs9Mjp2JHmgLLhdp',
-        'HOST': 'dpg-cit90jtph6elfhvvq8sg-a.oregon-postgres.render.com',
-        'PORT': '5432',}
-
+        'NAME': conn_str_params['dbname'],
+        'HOST': conn_str_params['host'],
+        'USER': conn_str_params['user'],
+        'PASSWORD': conn_str_params['password'],
+    }
 }
 
 # Password validation
