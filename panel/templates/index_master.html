@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <!-- Meta, title, CSS, favicons, etc. -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+
+  <title>AESA-DIACSA Control</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css"
+    integrity="sha512-4uGZHpbDliNxiAv/QzZNo/yb2FtAX+qiDb7ypBWiEdJQX8Pugp8M6il5SRkN8jQrDLWsh3rrPDSXRf3DwFYM6g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- NProgress -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"
+    integrity="sha512-bUg5gaqBVaXIJNuebamJ6uex//mjxPk8kljQTdM1SwkNrQD7pjS+PerntUSD+QRWPNJ0tq54/x4zRV8bLrLhZg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- iCheck -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.3/skins/flat/green.min.css"
+    integrity="sha512-8rlwW/SZzq8L0AZ2XHm2uYJ6Qvx9HKE5oSYeyvW0ABc8QwkmBZQ7CikkycbQbmwiS72nCSSKJquftqZ/PAAwNg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- bootstrap-progressbar -->
+  <link href="{% static 'FrWork/admin_lte/vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css' %}"
+    rel="stylesheet">
+  <!-- JQVMap -->
+  <link href="{% static 'FrWork/admin_lte/vendors/jqvmap/dist/jqvmap.min.css' %}" rel="stylesheet" />
+
+  <!-- bootstrap-daterangepicker -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-daterangepicker/3.0.5/daterangepicker.css"
+    integrity="sha512-gp+RQIipEa1X7Sq1vYXnuOW96C4704yI1n0YB9T/KqdvqaEgL6nAuTSrKufUX3VBONq/TPuKiXGLVgBKicZ0KA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- bootstrap-switchery -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.css"
+    integrity="sha512-zKvhCkM8b3JMULax/MlTkNk4gQwMbY8CqpDQC74/n7H6UK3HOZA/mO/fvjhVlh0V/E6PCrp4U6Lw6pnueS9HCQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Custom Theme Style -->
+  <link href="{% static 'FrWork/admin_lte/build/css/custom.min.css' %}" rel="stylesheet">
+
+  {% block head %}
+  {% endblock %}
+</head>
+
+<body class="nav-md">
+  <div class="container body">
+    <div class="main_container">
+      <div class="col-md-3 left_col">
+        <div class="left_col scroll-view">
+          <div class="navbar nav_title" style="border: 0;">
+            <a href="{%url 'index'%}" class="site_title"><i class="fa fa-connectdevelop"></i> <span>AESA -DIACSA
+                Personal</span></a>
+          </div>
+
+          <div class="clearfix"></div>
+
+          <br />
+
+          <!-- sidebar menu -->
+          <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+            <div class="menu_section">
+              <h3>General</h3>
+              <ul class="nav side-menu">
+                <li><a href="{%url 'listar'%}"><i class="fa fa-users"></i> Usuarios</a>
+                </li>
+                <li><a href="{%url 'livedata'%}"><i class="fa fa-clock-o"></i> Personal Tiempo Real</a>
+                </li>
+                <li><a href="{%url 'marcacion'%}"><i class="fa fa-list-alt"></i> Historial</a>
+                </li>
+                <li><a href="{% url 'noregistrados'%}"><i class="fa fa-user-secret"></i> Personal No Registrado</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <!-- /sidebar menu -->
+
+        </div>
+      </div>
+
+      <!-- top navigation -->
+      <div class="top_nav">
+        <div class="nav_menu">
+          <div class="nav toggle">
+            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+          </div>
+          <nav class="nav navbar-nav">
+            <ul class="navbar-right">
+              <li class="nav-item dropdown open" style="padding-left: 15px;">
+                <a href="javascript:;" class="user-profile dropdown-toggle" aria-haspopup="true" id="navbarDropdown"
+                  data-toggle="dropdown" aria-expanded="false">
+                  Usuario: {{user.username}}
+                </a>
+                <div class="dropdown-menu dropdown-usermenu pull-right" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="{% url 'signout' %}"><i class="fa fa-sign-out pull-right"></i> Log
+                    Out</a>
+                </div>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+      <!-- /top navigation -->
+
+
+
+      <!-- ****************************************   -->
+
+      {% block content %}
+      {% endblock %}
+
+
+      <!-- footer content -->
+      <footer>
+        <div class="pull-right">
+          AESA MINERIA - Aplicación minera desarrollada por <a href="http://www.diacsa.com/">Diacsa</a>
+        </div>
+        <div class="clearfix"></div>
+      </footer>
+      <!-- /footer content -->
+    </div>
+  </div>
+
+  <!-- jQuery -->
+  <script src="{% static 'FrWork/admin_lte/vendors/jquery/dist/jquery.min.js' %}"></script>
+  <!-- Bootstrap -->
+  <script src="{% static 'FrWork/admin_lte/vendors/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+  <!-- FastClick -->
+
+  <!-- NProgress -->
+
+  <!-- Chart.js -->
+  <script src="{% static 'FrWork/admin_lte/vendors/Chart.js/dist/Chart.min.js' %}"></script>
+  <!-- gauge.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gauge.js/1.3.7/gauge.min.js"
+    integrity="sha512-J0d1VfdfTSDoDPEsahCtf2nC+groXdWkuQFyJjS+s3CpKj63X9Hf3pMEJtjIJt/ODh0QwTRx2/OioL+9fMoqSA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- bootstrap-progressbar -->
+
+  <!-- iCheck -->
+
+  <!-- Skycons -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/skycons/1396634940/skycons.js"
+    integrity="sha512-6Qi7qYyfdjqiOXOqpU4OYEPpcm4hE0IQGP/8YY9csFpkdbaOcSWlSWwkdADw/8nOtWqsjdibbiBsRhoRyjk1YQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- Flot -->
+  <script src="{% static 'FrWork/admin_lte/vendors/Flot/jquery.flot.js' %}"></script>
+  <script src="{% static 'FrWork/admin_lte/vendors/Flot/jquery.flot.pie.js' %}"></script>
+  <script src="{% static 'FrWork/admin_lte/vendors/Flot/jquery.flot.time.js' %}"></script>
+  <script src="{% static 'FrWork/admin_lte/vendors/Flot/jquery.flot.stack.js' %}"></script>
+  <script src="{% static 'FrWork/admin_lte/vendors/Flot/jquery.flot.resize.js' %}"></script>
+  <!-- Flot plugins -->
+  <script src="{% static 'FrWork/admin_lte/vendors/flot.orderbars/js/jquery.flot.orderBars.js' %}"></script>
+  <script src="{% static 'FrWork/admin_lte/vendors/flot-spline/js/jquery.flot.spline.min.js' %}"></script>
+  <script src="{% static 'FrWork/admin_lte/vendors/flot.curvedlines/curvedLines.js' %}"></script>
+  <!-- DateJS -->
+  <!-- <script src="{% static 'FrWork/admin_lte/vendors/DateJS/build/date.js' %}"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/datejs/1.0/date.min.js"
+    integrity="sha512-/n/dTQBO8lHzqqgAQvy0ukBQ0qLmGzxKhn8xKrz4cn7XJkZzy+fAtzjnOQd5w55h4k1kUC+8oIe6WmrGUYwODA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- JQVMap -->
+
+  <script src="{% static 'FrWork/admin_lte/vendors/jqvmap/dist/jquery.vmap.js' %}"></script>
+  <script src="{% static 'FrWork/admin_lte/vendors/jqvmap/dist/maps/jquery.vmap.world.js' %}"></script>
+  <script src="{% static 'FrWork/admin_lte/vendors/jqvmap/examples/js/jquery.vmap.sampledata.js' %}"></script>
+  <!-- bootstrap-daterangepicker -->
+
+
+  <!-- dadasd -->
+
+
+  <!-- Custom Theme Scripts -->
+  <script src="{% static 'FrWork/admin_lte/build/js/custom.min.js' %}"></script>
+
+  <!-- Custom Theme Scripts for tables -->
+  <script src="{% static 'app.js' %}"></script>
+
+  {% block scripts %}
+  {% endblock %}
+
+</body>
+
+</html>

@@ -1,0 +1,16 @@
+contenido de prueba
+
+http://127.0.0.1:8000/api/restapp/
+
+{
+  "deviceID":["00000001"],
+  "cardID":["13101010","23202020"],
+  "f_evento":["2023-02-21","2023-02-20"],
+  "h_evento":["03:44:23","03:54:54"],
+  "evento":["Salida","Ingreso"]
+}
+Set-ExecutionPolicy Unrestricted -Scope Process
+
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+
+python 3.9.13

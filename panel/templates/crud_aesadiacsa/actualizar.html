@@ -1,0 +1,119 @@
+{% extends '../index_master.html' %}
+
+{% block content %}
+<div class="right_col" role="main">
+    <h1>Actualizar Personal</h1>
+    
+    <form action="actualizar" method="POST">
+        {% csrf_token %}
+        <!-- <div class="form-group row">
+            <label for="id" class="col-4 col-form-label">ID Usuario</label> 
+            <div class="col-8">
+              <div class="input-group">
+                <div class="input-group-addon">
+                  <i class="fa fa-list-ol"></i>
+                </div> 
+                <select id="id" name="id">
+                
+                    <option value="{{personalregistrado.id}}">{{personalregistrado.id}}</option>    
+                
+                </select>
+              </div>
+            </div>
+        </div> -->
+        <div class="form-group row">
+          <label for="cardid" class="col-4 col-form-label">Card ID</label> 
+          <div class="col-8">
+            <div class="input-group">
+              <div class="input-group-addon">
+                <i class="fa fa-credit-card"></i>
+              </div> 
+              <input id="cardidHex" name="cardidHex" placeholder="Card Id" type="text" required="required" class="form-control" value="{{personalregistrado.cardidHex}}">
+            </div>
+          </div>
+        </div>        
+        <div class="form-group row">
+          <label for="nombre" class="col-4 col-form-label">Nombre</label> 
+          <div class="col-8">
+            <div class="input-group">
+              <div class="input-group-addon">
+                <i class="fa fa-credit-card"></i>
+              </div> 
+              <input id="nombre" name="nombre" placeholder="Nombre" type="text" required="required" class="form-control" value="{{personalregistrado.nombre}}">
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="apellido" class="col-4 col-form-label">Apellido</label> 
+          <div class="col-8">
+            <div class="input-group">
+              <div class="input-group-addon">
+                <i class="fa fa-credit-card-alt"></i>
+              </div> 
+              <input id="apellido" name="apellido" placeholder="Apellido" type="text" class="form-control" value="{{personalregistrado.apellido}}">
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="empresa" class="col-4 col-form-label">Empresa</label> 
+          <div class="col-8">
+            <div class="input-group">
+              <div class="input-group-addon">
+                <i class="fa fa-steam"></i>
+              </div> 
+              <input id="empresa" name="empresa" placeholder="Empresa" type="text" class="form-control" value="{{personalregistrado.empresa}}">
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="cargo" class="col-4 col-form-label">Cargo</label> 
+          <div class="col-8">
+            <div class="input-group">
+              <div class="input-group-addon">
+                <i class="fa fa-steam"></i>
+              </div> 
+              <input id="cargo" name="cargo" placeholder="Cargo" type="text" class="form-control" value="{{personalregistrado.cargo}}">
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="correo" class="col-4 col-form-label">Correo</label> 
+          <div class="col-8">
+            <div class="input-group">
+              <div class="input-group-addon">
+                <i class="fa fa-inbox"></i>
+              </div> 
+              <input id="correo" name="correo" placeholder="email" type="email" required="required" class="form-control" value="{{personalregistrado.correo}}">
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="telefono" class="col-4 col-form-label">Telefono</label> 
+          <div class="col-8">
+            <div class="input-group">
+              <div class="input-group-addon">
+                <i class="fa fa-phone"></i>
+              </div> 
+              <input id="telefono" name="telefono" placeholder="Telefono" type="number" required="required" class="form-control" value="{{personalregistrado.telefono}}">
+            </div>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="fnac" class="col-4 col-form-label">Fecha de Nacimiento</label> 
+          <div class="col-8">
+            <div class="input-group">
+              <div class="input-group-addon">
+                <i class="fa fa-calendar"></i>
+              </div> 
+              <input id="f_nac" name="f_nac" placeholder="Fecha de nacimiento" type="date" required="required" class="form-control" value="{{ personalregistrado.f_nac|date:'Y-m-d' }}">
+            </div>
+          </div>
+        </div> 
+        <div class="form-group row">
+          <div class="offset-4 col-8">
+            <button name="actualizar" type="submit" class="btn btn-warning"><i class="fa fa-edit"></i> Actualizar Personal</button>
+          </div>
+        </div>
+      </form>
+</div>
+{% endblock%}
