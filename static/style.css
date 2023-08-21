@@ -1,55 +1,68 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700|Poppins:400,500&display=swap');
-*{
+
+:root {
+  --azul: rgb(0, 0, 255);
+  --blanco: rgb(255, 255, 255);
+}
+
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   user-select: none;
 }
-.bg-img{
+
+.bg-img {
   background: url('bg.png');
   height: 100vh;
   background-size: cover;
   background-position: center;
 }
-.bg-img:after{
+
+.bg-img:after {
   position: absolute;
   content: '';
   top: 0;
   left: 0;
   height: 100%;
   width: 100%;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.7);
 }
-.content3{
+
+.content3 {
   position: absolute;
   left: 50%;
   z-index: 50;
-  transform: translate(-50%,0%);
+  transform: translate(-50%, 0%);
   text-align: center;
 }
-.content3 header{
+
+.content3 header {
   color: red;
   font-size: 20px;
   font-weight: 400;
   margin: 0 0 0 0;
-  font-family: 'Montserrat',sans-serif;
+  font-family: 'Montserrat', sans-serif;
 }
-.content2{
+
+.content2 {
   position: absolute;
   left: 50%;
   z-index: 50;
-  transform: translate(-50%,0%);
+  transform: translate(-50%, 0%);
   text-align: center;
-  
+
 }
-.content2 header{
+
+.content2 header {
   color: white;
   font-size: 33px;
   font-weight: 600;
   margin: 0 0 0 0;
-  font-family: 'Montserrat',sans-serif;
+  font-family: 'Montserrat', sans-serif;
 }
-.content{
+
+.content {
   position: absolute;
   top: 60%;
   left: 50%;
@@ -57,30 +70,34 @@
   text-align: center;
   padding: 60px 32px;
   width: 370px;
-  transform: translate(-50%,-50%);
-  background: rgba(255,255,255,0.04);
-  box-shadow: -1px 4px 28px 0px rgba(0,0,0,0.75);
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: -1px 4px 28px 0px rgba(0, 0, 0, 0.75);
 }
-.content header{
+
+.content header {
   color: white;
   font-size: 33px;
   font-weight: 600;
   margin: 0 0 35px 0;
-  font-family: 'Montserrat',sans-serif;
+  font-family: 'Montserrat', sans-serif;
 }
-.field{
+
+.field {
   position: relative;
   height: 45px;
   width: 100%;
   display: flex;
-  background: rgba(255,255,255,0.94);
+  background: rgba(255, 255, 255, 0.94);
 }
-.field span{
+
+.field span {
   color: #222;
   width: 40px;
   line-height: 45px;
 }
-.field input{
+
+.field input {
   height: 100%;
   width: 100%;
   background: transparent;
@@ -88,12 +105,14 @@
   outline: none;
   color: #222;
   font-size: 16px;
-  font-family: 'Poppins',sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
-.space{
+
+.space {
   margin-top: 16px;
 }
-.show{
+
+.show {
   position: absolute;
   right: 13px;
   font-size: 13px;
@@ -101,24 +120,29 @@
   color: #222;
   display: none;
   cursor: pointer;
-  font-family: 'Montserrat',sans-serif;
+  font-family: 'Montserrat', sans-serif;
 }
-.pass-key:valid ~ .show{
+
+.pass-key:valid~.show {
   display: block;
 }
-.pass{
+
+.pass {
   text-align: left;
   margin: 10px 0;
 }
-.pass a{
+
+.pass a {
   color: white;
   text-decoration: none;
-  font-family: 'Poppins',sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
-.pass:hover a{
+
+.pass:hover a {
   text-decoration: underline;
 }
-.field input[type="submit"]{
+
+.field input[type="submit"] {
   background: #3498db;
   border: 1px solid #2691d9;
   color: white;
@@ -126,73 +150,171 @@
   letter-spacing: 1px;
   font-weight: 600;
   cursor: pointer;
-  font-family: 'Montserrat',sans-serif;
+  font-family: 'Montserrat', sans-serif;
 }
-.field input[type="submit"]:hover{
+
+.field input[type="submit"]:hover {
   background: #2691d9;
 }
-.login{
+
+.login {
   color: white;
   margin: 20px 0;
-  font-family: 'Poppins',sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
-.links{
+
+.links {
   display: flex;
   cursor: pointer;
   color: white;
   margin: 0 0 20px 0;
 }
-.facebook,.instagram{
+
+.facebook,
+.instagram {
   width: 100%;
   height: 45px;
   line-height: 45px;
   margin-left: 10px;
 }
-.facebook{
+
+.facebook {
   margin-left: 0;
   background: #4267B2;
   border: 1px solid #3e61a8;
 }
-.instagram{
+
+.instagram {
   background: #E1306C;
   border: 1px solid #df2060;
 }
-.facebook:hover{
+
+.facebook:hover {
   background: #3e61a8;
 }
-.instagram:hover{
+
+.instagram:hover {
   background: #df2060;
 }
-.links i{
+
+.links i {
   font-size: 17px;
 }
-i span{
+
+i span {
   margin-left: 8px;
   font-weight: 500;
   letter-spacing: 1px;
   font-size: 16px;
-  font-family: 'Poppins',sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
-.signup{
+
+.signup {
   font-size: 15px;
   color: white;
-  font-family: 'Poppins',sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
-.signup a{
+
+.signup a {
   color: #3498db;
   text-decoration: none;
 }
-.signup a:hover{
+
+.signup a:hover {
   text-decoration: underline;
 }
 
-@media (max-width: 768px ) {
+.BotonAcceder {
+  font-family: 'Montserrat', sans-serif;
+  color: white;
+  font-size: 18px;
+
+}
+
+.BotonAcceder:hover {
+  background-color: #2691d9;
+  cursor: pointer;
+}
+
+.BotonAcceder:active {
+  opacity: 0.5;
+}
+
+.mensaje {
+  color: azure;
+  font-size: 1.2em;
+}
+
+.subloader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite;
+  /* Safari */
+  animation: spin 2s linear infinite;
+  display: flex;
+  position: fixed;
+}
+
+.loader {
+  z-index: 9999;
+  width: 100%;
+  height: 100%;
+  display: none;
+  position: fixed;
+  align-items: center;
+  justify-content: center;
+  background-color: #0000009f;
+}
+
+.mensajecontrasena {
+
+  margin-top: 15px;
+  color: azure;
+  font-size: 1em;
+  justify-content: right;
+  height: auto;
+  align-items: center;
+}
+
+.mensajecontrasena p:hover {
+  cursor: pointer;
+  color: blue;
+}
+
+.mensajecontrasena p:active {
+  opacity: 0.7;
+}
+
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
   .content2 {
     display: none;
   }
 }
 
-@media (max-height: 600px ) {
+@media (max-height: 600px) {
   .content2 {
     display: none;
   }
