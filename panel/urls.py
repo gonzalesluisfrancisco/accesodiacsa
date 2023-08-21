@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path
+from django.contrib.auth import views as auth_views
 
 from . import views
 
@@ -18,5 +19,6 @@ urlpatterns = [
     path('livedata/eliminar', views.livedata_eliminar, name="livedata_eliminar"),
     path('livedata/llenar', views.livedata_llenar, name="livedata_llenar"),
     path('marcacion', views.marcacion, name="marcacion"),
-    path('noregistrados', views.noregistrados, name="noregistrados"),    
+    path('noregistrados', views.noregistrados, name="noregistrados"),  
+    path('restablecer-contrasena/', auth_views.PasswordResetView.as_view(), name='password_reset'),
 ]

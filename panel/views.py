@@ -1,11 +1,17 @@
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
+
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import force_bytes
 
 from . import models
 
@@ -15,6 +21,8 @@ from django.utils.timezone import activate
 import pytz
 
 from django.db.models import Q
+
+from . import Funciones as Fun
 
 # Create your views here.
 TEMPLATE_DIRS = (
@@ -29,22 +37,47 @@ def index_noautenticado(request):
     return render(request, "index.html")
 
 def autenticacion(request):
-    if request.method == 'GET':
-        return render(request, "login.html",{
-            'error': 'Hola Andre.'
-        })
+    if request.method == "POST":
+        
+        if request.POST.get("Comando") == "VerificarLogin":
+            Usuario = request.POST.get("Usuario")
+            Contrasena = request.POST.get("Contrasena")
+            Captcha = request.POST.get("Captcha")
+            FormatoValido, Mensaje = Fun.FormatoLoginValidos(Usuario, Contrasena, Captcha)
+            if not FormatoValido: Respuesta = {'Mensaje': Mensaje}
+            else:
+                DatosValidos, Mensaje = Fun.DatosLoginValidos(request, Usuario, Contrasena)
+                if DatosValidos: Fun.GenerarToken(Usuario, Contrasena, request)
+                Respuesta = {'Mensaje': Mensaje}
+        
+        
+        elif request.POST.get("Comando") == "VerificarToken":
+            Usuario = request.POST.get("Usuario")
+            Contrasena = request.POST.get("Contrasena")
+            Token = request.POST.get("Token")
+            if not Fun.VerificarToken(Token): Respuesta = {'Mensaje': "Token no valido"}
+            else:
+                DatosValidos, Mensaje = Fun.DatosLoginValidos(request, Usuario, Contrasena)
+                if not DatosValidos: Respuesta={'Mensaje': "No deberias poder ver esto"}
+                login(request, authenticate(request, username = Usuario, password = Contrasena))
+                return redirect('livedata')
+        
+        elif request.POST.get("Comando") == "RecuperarCuenta":
+            Correo = request.POST.get("Correo")
+            try: User = User.objects.get(email = Correo)
+            except: Respuesta = {"Mensaje": "El correo ingresado no se encuentra registrado"}
+            else:
+                token = default_token_generator.make_token(User)
+                uid = urlsafe_base64_encode(force_bytes(User.pk))
+                current_site = get_current_site(request)
+                mail_subject = 'Reset your password'
+        
+        else: Respuesta = {'Mensaje': "El comando es desconocido"}
+        return JsonResponse(Respuesta)
     
-    user = authenticate(
-        request, username=request.POST['username'], password=request.POST['password'])
+    signout(request)
+    return render(request, "login.html")
 
-    if user is None:
-        return render(request, 'login.html', {
-            'error': 'Username or password incorrect'
-        })
-    else:
-        login(request, user)
-        return redirect('livedata')    
-    
 @login_required(login_url = 'autenticacion')
 def signout(request):
     logout(request)
