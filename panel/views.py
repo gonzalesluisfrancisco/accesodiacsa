@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import get_user_model
+from django.utils.encoding import force_str
 
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -23,6 +25,7 @@ import pytz
 from django.db.models import Q
 
 from . import Funciones as Fun
+from django.core.exceptions import ObjectDoesNotExist
 
 # Create your views here.
 TEMPLATE_DIRS = (
@@ -44,39 +47,75 @@ def autenticacion(request):
             Contrasena = request.POST.get("Contrasena")
             Captcha = request.POST.get("Captcha")
             FormatoValido, Mensaje = Fun.FormatoLoginValidos(Usuario, Contrasena, Captcha)
-            if not FormatoValido: Respuesta = {'Mensaje': Mensaje}
-            else:
-                DatosValidos, Mensaje = Fun.DatosLoginValidos(request, Usuario, Contrasena)
-                if DatosValidos: Fun.GenerarToken(Usuario, Contrasena, request)
-                Respuesta = {'Mensaje': Mensaje}
-        
+            if not FormatoValido:
+                return JsonResponse({"Estado": "Invalido", 'Mensaje': Mensaje})
+            DatosValidos, Mensaje = Fun.DatosLoginValidos(request, Usuario, Contrasena)
+            if DatosValidos:
+                Correo = Fun.EnviarToken(Usuario, Contrasena, request)
+                return JsonResponse({"Estado": "Valido", 'Mensaje': Mensaje, "Correo": Correo})
+            return JsonResponse({"Estado": "Invalido", 'Mensaje': Mensaje})
         
         elif request.POST.get("Comando") == "VerificarToken":
             Usuario = request.POST.get("Usuario")
             Contrasena = request.POST.get("Contrasena")
             Token = request.POST.get("Token")
-            if not Fun.VerificarToken(Token): Respuesta = {'Mensaje': "Token no valido"}
-            else:
-                DatosValidos, Mensaje = Fun.DatosLoginValidos(request, Usuario, Contrasena)
-                if not DatosValidos: Respuesta={'Mensaje': "No deberias poder ver esto"}
-                login(request, authenticate(request, username = Usuario, password = Contrasena))
-                return redirect('livedata')
+            if len(Token) != 8:
+                return JsonResponse({"Estado": "Invalido", "Mensaje": "El Token debe ser de 8 digitos"})
+            if not Fun.VerificarToken(Token):
+                return JsonResponse({"Estado": "Invalido", 'Mensaje': "El token ingresado no es correcto"})
+            DatosValidos, Mensaje = Fun.DatosLoginValidos(request, Usuario, Contrasena)
+            if not DatosValidos:
+                return JsonResponse({"Estado": "Invalido", 'Mensaje': "No deberias poder ver esto"})
+            login(request, authenticate(request, username = Usuario, password = Contrasena))
+            return JsonResponse({"Estado": "Valido", "Mensaje": "El token ha sido validado correctamente"})
         
         elif request.POST.get("Comando") == "RecuperarCuenta":
             Correo = request.POST.get("Correo")
-            try: User = User.objects.get(email = Correo)
-            except: Respuesta = {"Mensaje": "El correo ingresado no se encuentra registrado"}
-            else:
-                token = default_token_generator.make_token(User)
-                uid = urlsafe_base64_encode(force_bytes(User.pk))
-                current_site = get_current_site(request)
-                mail_subject = 'Reset your password'
-        
-        else: Respuesta = {'Mensaje': "El comando es desconocido"}
-        return JsonResponse(Respuesta)
+            if len(Correo) == 0: return JsonResponse({"Estado": "Invalido", "Mensaje": "Debe ingresar su correo electronico"})
+            try: Usuario = User.objects.get(email = Correo)
+            except ObjectDoesNotExist: return JsonResponse({"Estado": "Invalido","Mensaje": "El correo ingresado no se encuentra registrado"})
+            token = default_token_generator.make_token(Usuario)
+            uid = urlsafe_base64_encode(force_bytes(Usuario.pk))
+            current_site = get_current_site(request)
+            Asunto = 'Recuperar contraseña - DIACSA'
+            reset_url = f"http://{current_site}/reset-password/{uid}/{token}/"
+            MensajeHTML = f"""\
+            <html>
+            <head></head>
+            <body>
+                <p>Hola, <span style="font-size: larger;">{Usuario.first_name}</span>!</p>
+                <p>Entra a este enlace para recuperar tu contraseña: <br><span style="font-size: larger;"><b>{reset_url}</b></span></p>
+            </body>
+            </html>
+            """
+            Fun.EnviaCorreo(Usuario.email, Asunto, MensajeHTML)
+            return JsonResponse({"Estado": "Valido", "Mensaje": "El enlace de recuperacion ha sido enviado a su correo"})
+                
+        else:
+            return JsonResponse({"Estado": "Invalido", 'Mensaje': "El comando es desconocido"})
     
     signout(request)
     return render(request, "login.html")
+
+def reset_password(request, uidb64, token):
+    if request.method == 'POST':
+        try:
+            UID = force_str(urlsafe_base64_decode(uidb64))
+            Usuario = User.objects.get(pk=UID)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist): Usuario = None
+        if Usuario is None or not default_token_generator.check_token(Usuario, token):
+            return JsonResponse({"Estado": "Invalido", "Mensaje": "El enlace de recuperacion no es valido"})
+        NuevaContrasena = request.POST.get('Contrasena1')
+        ConfirmacionContrasena = request.POST.get('Contrasena2')
+        if NuevaContrasena != ConfirmacionContrasena:
+            return JsonResponse({"Estado": "Invalido", "Mensaje": "Las contraseñas ingresadas no coinciden"})
+        if not Fun.ContrasenaEsFuerte(NuevaContrasena):
+            return JsonResponse({"Estado": "Invalido", "Mensaje": "La nueva contraseña debe tener:\nUna mayuscula.\nUna minuscula.\nSin numeros consecutivos.\nMinimo 8 caracteres"})
+        Usuario.set_password(NuevaContrasena)
+        Usuario.save()
+        return JsonResponse({"Estado": "Valido", "Mensaje": "La contraseña se ha cambiado correctamente"})
+    else:
+        return render(request, 'reset_password.html')
 
 @login_required(login_url = 'autenticacion')
 def signout(request):

@@ -20,5 +20,5 @@ urlpatterns = [
     path('livedata/llenar', views.livedata_llenar, name="livedata_llenar"),
     path('marcacion', views.marcacion, name="marcacion"),
     path('noregistrados', views.noregistrados, name="noregistrados"),  
-    path('restablecer-contrasena/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('reset-password/<str:uidb64>/<str:token>/', views.reset_password, name='reset_password'),
 ]
