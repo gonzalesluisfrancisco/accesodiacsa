@@ -4,14 +4,23 @@ document.addEventListener("DOMContentLoaded", function () {
     $("[name='PantallaToken']").css("display", "none");
     $("[name='PantallaContrasenaOlvidada']").css("display", "none");
 });
+
 function EnviarCredenciales() {
+    Swal.fire({
+        title: 'Cargando...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        },
+        showConfirmButton: false,
+        showCancelButton: false,
+        allowEscapeKey: false,
+        allowEnterKey: false,
+    });
     var Usuario = $("#username").val()
     var Contrasena = $("#password").val()
     var Captcha = VerificarCaptcha()
-    if (!DatosIngresadosValidos(Usuario, Contrasena, Captcha)) return;
-    if (DEBUG) console.log(`Usuario: ${Usuario}\nContraseña: ${Contrasena}\nCaptcha: ${Captcha}`)
     var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    $(".loader").css("display", "flex")
     $.ajax({
         type: "POST",
         url: "/",
@@ -23,15 +32,33 @@ function EnviarCredenciales() {
             Captcha: Captcha
         },
         success: function (response) {
+            Swal.close();
             if (DEBUG) console.log(response.Mensaje)
-            $(".loader").css("display", "none")
-            if (response.Mensaje == "El usuario y contraseña son correctos") MostarSegundoFactor();
-            else alert(response.Mensaje)
+            if (response.Estado == "Invalido") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: response.Mensaje
+                });
+            }
+            else {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Correcto',
+                    text: response.Mensaje
+                });
+                $("#MensajeToken").html($("#MensajeToken").html() + " " + response.Correo);
+                MostarSegundoFactor()
+            }
             return response;
         },
         error: function (xhr, status, error) {
-            $(".loader").css("display", "none")
-            alert(error);
+            Swal.close();
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error
+            });
         }
     });
 
@@ -62,14 +89,24 @@ function MostarSegundoFactor() {
 }
 
 function EnviarToken() {
+    Swal.fire({
+        title: 'Cargando...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        },
+        showConfirmButton: false,
+        showCancelButton: false,
+        allowEscapeKey: false,
+        allowEnterKey: false,
+    });
     var Usuario = $("#username").val()
     var Contrasena = $("#password").val()
     var Captcha = VerificarCaptcha()
     var Token = $("#token").val()
-    if (Token.length != 8) { alert("El token debe tener 8 caracteres"); return; }
+    //if (Token.length != 8) { alert("El token debe tener 8 caracteres"); return; }
     if (DEBUG) console.log(`Token: ${Token}`)
     var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    $(".loader").css("display", "flex")
     $.ajax({
         type: "POST",
         url: "/",
@@ -82,15 +119,37 @@ function EnviarToken() {
             Token: Token
         },
         success: function (response) {
+            Swal.close()
             if (DEBUG) console.log(response.Mensaje)
-            $(".loader").css("display", "none")
-            if (response.Mensaje == undefined) window.location.href = "/livedata";
-            else alert(response.Mensaje)
+            if (response.Estado == "Invalido") {
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: response.Mensaje
+                });
+            }
+            else {
+                Swal.close();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Correcto',
+                    text: response.Mensaje
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "/livedata";
+                    }
+                });
+            }
             return response;
         },
         error: function (xhr, status, error) {
-            $(".loader").css("display", "none")
-            alert(error);
+            Swal.close();
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error
+            });
         }
     });
 }
@@ -102,9 +161,19 @@ function MostrarContrasenaOlvidada() {
 }
 
 function EnviarContrasenaOlvidada() {
+    Swal.fire({
+        title: 'Cargando...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        },
+        showConfirmButton: false,
+        showCancelButton: false,
+        allowEscapeKey: false,
+        allowEnterKey: false,
+    });
     var Correo = $("#correo").val()
     var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    $(".loader").css("display", "flex")
     $.ajax({
         type: "POST",
         url: "/",
@@ -116,13 +185,92 @@ function EnviarContrasenaOlvidada() {
         success: function (response) {
             if (DEBUG) console.log(response.Mensaje)
             $(".loader").css("display", "none")
-            if (response.Mensaje == "Credenciales enviadas") { alert.Mensaje; window.location.href = "/" }
-            else alert(response.Mensaje)
+            if (response.Estado == "Invalido") {
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: response.Mensaje
+                });
+            }
+            else {
+                Swal.close();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Correcto',
+                    text: response.Mensaje
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "/";
+                    }
+                });
+            }
             return response;
         },
         error: function (xhr, status, error) {
-            $(".loader").css("display", "none")
-            alert(error);
+            Swal.close();
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error
+            });
+        }
+    });
+}
+
+function CambiarContrasena() {
+    Swal.fire({
+        title: 'Cargando...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        },
+        showConfirmButton: false,
+        showCancelButton: false,
+        allowEscapeKey: false,
+        allowEnterKey: false,
+    });
+    var Contrasena1 = $("#password").val();
+    var Contrasena2 = $("#password2").val();
+    var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    $.ajax({
+        type: "POST",
+        url: "",
+        data: {
+            csrfmiddlewaretoken: csrfToken,
+            Contrasena1: Contrasena1,
+            Contrasena2: Contrasena2
+        },
+        success: function (response) {
+            if (DEBUG) console.log(response.Mensaje)
+            if (response.Estado == "Invalido") {
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    html: response.Mensaje.replace(/\n/g, '<br>')
+                });
+            }
+            else {
+                Swal.close();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Correcto',
+                    text: response.Mensaje
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "/";
+                    }
+                });
+            }
+        },
+        error: function (xhr, status, error) {
+            Swal.close();
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error
+            });
         }
     });
 }
