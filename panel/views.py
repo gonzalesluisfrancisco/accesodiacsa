@@ -78,7 +78,7 @@ def autenticacion(request):
             uid = urlsafe_base64_encode(force_bytes(Usuario.pk))
             current_site = get_current_site(request)
             Asunto = 'Recuperar contraseña - DIACSA'
-            reset_url = f"http://{current_site}/reset-password/{uid}/{token}/"
+            reset_url = f"https://{current_site}/reset-password/{uid}/{token}/"
             MensajeHTML = f"""\
             <html>
             <head></head>
