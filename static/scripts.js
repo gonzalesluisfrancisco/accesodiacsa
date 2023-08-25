@@ -140,6 +140,7 @@ function EnviarToken() {
                         window.location.href = "/livedata";
                     }
                 });
+
             }
             return response;
         },
