@@ -27,6 +27,14 @@ from django.db.models import Q
 from . import Funciones as Fun
 from django.core.exceptions import ObjectDoesNotExist
 
+import re
+import random
+import string
+from datetime import datetime
+import traceback
+import openpyxl
+
+
 # Create your views here.
 TEMPLATE_DIRS = (
     'os.path.join(BASE_DIR, "templates")'
@@ -131,9 +139,24 @@ def index(request):
 
 @login_required(login_url = 'autenticacion')
 def listar(request):
+    if request.method == "POST" and request.user.is_superuser:
+        Comando = request.POST.get("Comando")
+        ExcelFile = request.FILES.get("excelFile")
+        if ExcelFile:
+            try:
+                Excel = openpyxl.load_workbook(ExcelFile)
+                Hoja = Excel.active
+                
+                return JsonResponse({'Mensaje': 'Planilla actualizada correctamente', 'Estado': "Valido"})
+            except Exception as e:
+                return JsonResponse({'Estado': 'Invalido', 'Mensaje': str(e) + "\n" + traceback.format_exc()})
+        return JsonResponse({"Estado":"Invalido","Mensaje":"El archivo no se ha podido leer"})
     users = models.PersonalRegistrado.objects.all()
     datos = { 'personalregistrado' : users}
-    return render(request, "crud_aesadiacsa/listar.html", datos)
+    if request.user.is_staff:
+        return render(request, "crud_aesadiacsa/listar.html", datos)
+    return render(request, "crud_aesadiacsa/listar_basic.html", datos)    
+    
 
 @login_required(login_url = 'autenticacion')
 def agregar(request):
@@ -214,13 +237,62 @@ def eliminar(request, codigo):
 
 @login_required(login_url = 'autenticacion')
 def livedata(request):
-    users = models.LiveData.objects.all()
+    if request.method == "POST" and request.POST.get("Comando") == "TablaLiveData":
+        print("Tabla LiveData")
+        print("Search")
+        draw = int(request.POST.get('draw', 0))
+        start = int(request.POST.get('start', 0))
+        length = int(request.POST.get('length', 0))
+        search_value = request.POST.get('search[value]', '')
+        queryset = models.LiveData.objects.order_by("-f_ingreso", "-h_ingreso")   
+        if search_value != '':
+            queryset = queryset.filter(
+            Q(id__icontains=search_value) |
+            Q(ubicacion__icontains=search_value) |
+            Q(cardidHex__icontains=search_value) |
+            Q(nombre__icontains=search_value) |
+            Q(apellido__icontains=search_value) |
+            Q(empresa__icontains=search_value) |
+            Q(cargo__icontains=search_value) |
+            Q(f_evento__icontains=search_value) |
+            Q(h_evento__icontains=search_value) |
+            Q(evento__icontains=search_value)
+            ).order_by("-f_ingreso", "-h_ingreso")    
+        total_records = queryset.count()
+        queryset = queryset[start:start+length]
+        data = []
+        for i, obj in enumerate(queryset, start=0):
+            item = {
+                'id':str(total_records - start - i),
+                'ubicacion': obj.ubicacion,
+                'cardidHex': obj.cardidHex,
+                'nombre': obj.nombre,
+                'apellido': obj.apellido,
+                'empresa': obj.empresa,
+                'cargo': obj.cargo,
+                'f_evento': obj.f_ingreso,
+                'h_evento': obj.h_ingreso,
+            }
+            data.append(item)
+        response = {
+            "draw": draw,
+            "recordsTotal": total_records,
+            "recordsFiltered": total_records,
+            "data": data,
+        }
+        # print(response)
+        return JsonResponse(response)
+    elif request.method == "POST" and request.POST.get("Comando") == "ObtenerHoraTotal":
+        print("ObtenerHoraTotal")
+        lima_timezone = pytz.timezone('America/Lima')
+        lima_time = timezone.now().astimezone(lima_timezone).strftime('%Y-%m-%d %H:%M:%S')
+        total = models.LiveData.objects.order_by("-f_ingreso", "-h_ingreso").count()
+        return JsonResponse({"Estado": "Valido", "Total": total, "Hora": lima_time})
+    #users = models.LiveData.objects.all()
     #activate(pytz.timezone('America/Lima'))
     #print(timezone.now())
-    datos = { 'livedata' : users,
-             'fecha_y_hora': timezone.now(),
-             'total': users.count()}
-    return render(request, "livedata/livedata.html", datos)
+    #datos = { 'livedata' : users,             'fecha_y_hora': timezone.now(),             'total': users.count()}
+    return render(request, "livedata/livedata.html")
 
 @login_required(login_url = 'autenticacion')
 def livedata_llenar(request):
@@ -279,7 +351,7 @@ from django.core import serializers
 from django.http import JsonResponse
 @login_required(login_url = 'autenticacion')
 def marcacion(request): 
-    if request.method == "POST":
+    if request.method == "POST" and request.POST.get("Comando")=="TablaMarcacion":
         print("Search")
         min = request.POST.get("min")
         max = request.POST.get("max")
@@ -287,8 +359,11 @@ def marcacion(request):
         start = int(request.POST.get('start', 0))
         length = int(request.POST.get('length', 0))
         search_value = request.POST.get('search[value]', '')
+        queryset = models.Historial.objects.order_by('-id')
+        if min != "" and max != "":
+            queryset = queryset.filter(f_evento__range=(min, max)).order_by('-id')
         if search_value != '':
-            queryset = models.Historial.objects.filter(
+            queryset = queryset.filter(
             Q(id__icontains=search_value) |
             Q(ubicacion__icontains=search_value) |
             Q(cardidHex__icontains=search_value) |
@@ -299,11 +374,7 @@ def marcacion(request):
             Q(f_evento__icontains=search_value) |
             Q(h_evento__icontains=search_value) |
             Q(evento__icontains=search_value)
-            ).order_by("-id")
-        else:
-            queryset = models.Historial.objects.order_by('-id')
-        if min != "" and max != "":
-            queryset = models.Historial.objects.filter(f_evento__range=(min, max)).order_by('-id')
+            ).order_by("-id")    
         total_records = queryset.count()
         queryset = queryset[start:start+length]
         data = []
@@ -329,6 +400,36 @@ def marcacion(request):
         }
         # print(response)
         return JsonResponse(response)
+    elif request.method == "GET" and request.GET.get("Comando") == "DescargarExcel":
+        min = request.GET.get('FechaInicial')
+        max = request.GET.get('FechaFinal')
+        search_value = request.GET.get('Search', '')
+        print(min, max)
+        queryset = models.Historial.objects.order_by('-id')
+        if min != "" and max != "":
+            queryset = queryset.filter(f_evento__range=(min, max)).order_by('-id')
+        if search_value != '':
+            queryset = queryset.filter(
+            Q(id__icontains=search_value) |
+            Q(ubicacion__icontains=search_value) |
+            Q(cardidHex__icontains=search_value) |
+            Q(nombre__icontains=search_value) |
+            Q(apellido__icontains=search_value) |
+            Q(empresa__icontains=search_value) |
+            Q(cargo__icontains=search_value) |
+            Q(f_evento__icontains=search_value) |
+            Q(h_evento__icontains=search_value) |
+            Q(evento__icontains=search_value)
+            ).order_by("-id")    
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.append(['#', 'Ubicacion', 'Card ID', 'Nombre', 'Apellido', 'Cargo', 'F. Evento', 'H. Evento', 'Evento'])
+        for item in queryset:
+            ws.append([item.id, item.ubicacion, item.cardidHex, item.nombre, item.apellido, item.cargo, item.f_evento, item.h_evento, item.evento])
+        response = HttpResponse(content_type='application/ms-excel')
+        response['Content-Disposition'] = 'attachment; filename="Historial_ingresos_salidas.xlsx"'
+        wb.save(response)
+        return response
     print("Marcacion")
     # users = models.Historial.objects.all().order_by('-id')
     # datos = { 'marcacion' : users}
@@ -340,3 +441,113 @@ def noregistrados(request):
     users = models.NoRegistrados.objects.all()
     datos = { 'noregistrados' : users}
     return render(request, "noregistrados/noregistrados.html", datos)
+
+@login_required(login_url = 'autenticacion')
+def registrarusuario(request):    
+    if request.method == "POST":
+        if request.POST.get("Comando") != "RegistrarUsuario":
+            return JsonResponse({"Estado": "Invalido", "Mensaje": "¿Que haces?"})
+        Nombre = request.POST.get("Nombre").strip().upper()
+        PrimerApellido = request.POST.get("PrimerApellido").strip().upper()
+        SegundoApellido = request.POST.get("SegundoApellido").strip().upper()
+        DNI = request.POST.get("DNI").strip()
+        Correo = request.POST.get("Correo").strip()
+        Telefono = request.POST.get("Telefono").strip()
+        is_staff = False
+        if request.POST.get("Rol") == "Observador y registro de planilla": is_staff = True
+        if not(len(Nombre) and len(PrimerApellido) and len(SegundoApellido) and len(DNI) and len(Correo) and len(Telefono)):
+            return JsonResponse({"Estado": "Invalido", "Mensaje": "Debe llenar todos los campos antes de continuar"})
+        if not re.match(r'^[A-Za-z\s]+$', Nombre):
+            return JsonResponse({"Estado": "Invalido", "Mensaje": "El nombre debe contener solo letras"})   
+        if not re.match(r'^[A-Za-z]+$', PrimerApellido):
+                return JsonResponse({"Estado": "Invalido", "Mensaje": "El apellido debe contener solo letras"}) 
+        if not re.match(r'^[A-Za-z\s]+$', SegundoApellido):
+                return JsonResponse({"Estado": "Invalido", "Mensaje": "El apellido debe contener solo letras"})  
+        if len(DNI) != 8:
+            return JsonResponse({"Estado": "Invalido", "Mensaje": "El DNI debe tener 8 caracteres"})
+        if not re.match(r'^\d+$', DNI):
+            return JsonResponse({"Estado": "Invalido", "Mensaje": "Debe ingresar un dni valido"})
+        if models.UserInfo.objects.filter(DNI = DNI).exists():
+            return JsonResponse({"Estado": "Invalido", "Mensaje": "El DNI ya se encuentra registrado"})
+        if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', Correo):
+            return JsonResponse({"Estado": "Invalido", "Mensaje": "Debe ingresar un correo valido"})
+        if User.objects.filter(email = Correo).exists():
+            return JsonResponse({"Estado": "Invalido", "Mensaje": "El correo ya se encuentra registrado"})
+        if len(Telefono) != 9:
+            return JsonResponse({"Estado": "Invalido", "Mensaje": "El telefono debe tener 9 caracteres"})
+        if not re.match(r'^\d+$', Telefono):
+            return JsonResponse({"Estado": "Invalido", "Mensaje": "Debe ingresar un telefono valido"})
+        try:
+            Username = Nombre[0].lower() + PrimerApellido.lower() + DNI[4:8]
+            if User.objects.filter(username = Username).exists():
+                Username = Nombre[0].lower() + PrimerApellido.lower() + DNI[0:4]
+            random.seed(int(datetime.now().timestamp()))
+            Password = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
+            NuevoUsuario = User(username = Username, email = Correo, first_name = Nombre, last_name = PrimerApellido, is_staff=is_staff)
+            NuevoUsuario.set_password(Password)
+            MensajeHTML = f"""\
+            <html>
+            <head></head>
+            <body>
+                <p>Hola, <span style="font-size: larger;">{NuevoUsuario.first_name}</span>!</p>
+                <p>Se ha registrado su cuenta, sus datos de acceso son:</p>
+                <p><br><span style="font-size: larger;"><b>Usuario: {NuevoUsuario.username}</b></span><br>
+                <p><br><span style="font-size: larger;"><b>Contraseña: {Password}</b></span></p>
+            </body>
+            </html>
+            """
+            Fun.EnviaCorreo(NuevoUsuario.email, "Cuenta registrada - Control de acceso", MensajeHTML)
+            NuevoUsuario.save()
+            NuevoUsuarioInfo = models.UserInfo(User = NuevoUsuario, DNI = DNI, Telefono = Telefono, SegundoApellido = SegundoApellido)
+            NuevoUsuarioInfo.save()
+            print(Username, Password)
+            return JsonResponse({"Estado": "Valido", "Mensaje": "Registrado correctamente, se ha enviado las credenciales al correo electronico"})
+        except Exception as e:
+            return JsonResponse({"Estado": "Invalido", "Mensaje": f"{str(e)}"})
+        
+        
+    else:
+        if request.user.is_superuser:
+            return render(request, "registrarusuario/plantillaregistro.html")
+        return render(request, "registrarusuario/plantilladenegado.html")
+
+def eliminarusuario(request):
+    if request.method == "POST":
+        if request.POST.get("Comando") == "ConsultarDatos":
+            Usuario = request.POST.get("Usuario")
+            if not User.objects.filter(username = Usuario).exists():
+                return JsonResponse({"Estado": "Invalido"})
+            user = User.objects.get(username = Usuario)
+            user2 = models.UserInfo.objects.get(User = user)
+            Nombre = user.first_name
+            PrimerApellido = user.last_name
+            SegundoApellido = user2.SegundoApellido
+            DNI = user2.DNI
+            Correo = user.email
+            Telefono = user2.Telefono
+            Rol = "Solo observador"
+            if user.is_staff: Rol = "Observador y registro de planilla"
+            Data = {
+                "Estado": "Valido",
+                "Nombre": Nombre,
+                "PrimerApellido": PrimerApellido,
+                "SegundoApellido": SegundoApellido,
+                "DNI": DNI,
+                "Correo": Correo,
+                "Telefono": Telefono,
+                "Rol": Rol,
+            }
+            return JsonResponse(Data)
+        elif request.POST.get("Comando") == "EliminarUsuario":
+            try:
+                Usuario = request.POST.get("Usuario")
+                user = User.objects.get(username = Usuario)
+                user.delete()
+                return JsonResponse({"Estado": "Valido", "Mensaje": "El usuario se elimino correctamente"})
+            except Exception as e:
+                return JsonResponse({"Estado": "Invalido", "Mensaje": f"{str(e)}"})
+                
+    if request.user.is_superuser:
+        Usuarios = User.objects.exclude(username = request.user.username)
+        return render(request, "eliminarusuario/plantillaeliminar.html", {"Usuarios": Usuarios})
+    return render(request, "eliminarusuario/plantilladenegado.html")
