@@ -151,6 +151,7 @@ if not DEBUG:    # Tell Django to copy statics to the `staticfiles` directory
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
+    }
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
 STATIC_ROOT  = os.path.join(BASE_DIR, 'staticfiles')
