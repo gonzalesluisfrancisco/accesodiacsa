@@ -19,8 +19,11 @@ from django.urls import path
 
 from django.conf.urls import include
 from restapp.api.router import router_posts
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('panel.urls')),
     path('api/', include(router_posts.urls))
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
