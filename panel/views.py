@@ -67,7 +67,7 @@ def autenticacion(request):
             Usuario = request.POST.get("Usuario")
             Contrasena = request.POST.get("Contrasena")
             Token = request.POST.get("Token")
-            if len(Token) != 8:
+            if len(Token) != 6:
                 return JsonResponse({"Estado": "Invalido", "Mensaje": "El Token debe ser de 8 digitos"})
             if not Fun.VerificarToken(Token):
                 return JsonResponse({"Estado": "Invalido", 'Mensaje': "El token ingresado no es correcto"})
