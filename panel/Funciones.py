@@ -1,10 +1,11 @@
 from django.contrib.auth import  authenticate
 import pytz
-from datetime import datetime
+from datetime import datetime, timedelta
 import smtplib
 from email.message import EmailMessage 
 import random
 import re
+import hashlib
 
 def FormatoLoginValidos(Usuario, Contrasena, Captcha):
     Resultado = False
@@ -21,30 +22,12 @@ def DatosLoginValidos(request, Usuario, Contrasena):
     else: return True, "El usuario y contraseña son correctos"
     
 def EnviarToken(Usuario, Contrasena, request):
-    FechaHora_Timestamp = datetime.now(pytz.timezone('America/Lima')).timestamp()
-    #Se debe generar un token
-    #[a][n][o][x][p][y][q][b]
-    #          a     b
-    random.seed(FechaHora_Timestamp)
-    a = b = random.randint(1,6)
-    while a == b: b = random.randint(1,6) #Hasta aqui tengo a y b
-    #
-    FechaHora_Minutos = datetime.now(pytz.timezone('America/Lima')).strftime("%M")
-    x = int(FechaHora_Minutos[0])
-    y = int(FechaHora_Minutos[1])
-    random.seed(a+b+x+y)
-    Dummy = [random.randint(0,9), random.randint(0,9), random.randint(0,9), random.randint(0,9)]
-    ArrayToken = [-1,-1,-1,-1,-1,-1,-1,-1]
-    ArrayToken[0] = a
-    ArrayToken[7] = b
-    ArrayToken[a] = x
-    ArrayToken[b] = y
-    index = 0
-    for i in range (1,7):
-        if i == a or i == b: continue
-        ArrayToken[i] = Dummy[index]
-        index = index + 1
-    Token = "".join(str(entero) for entero in ArrayToken)
+    FechaHora = datetime.now(pytz.timezone('America/Lima')).strftime("%Y%m%d%H%M%S")
+    Key = "4DM1ND14CSAK3Y"  # Cambia esto por tu clave secreta
+    combined_string = FechaHora + Key
+    hash_object = hashlib.sha256(combined_string.encode())
+    hash_hex = hash_object.hexdigest()
+    Token = hash_hex[:6].upper()
     print(Token)
     User = authenticate(request, username = Usuario, password = Contrasena)
     Asunto = "Codigo de acceso - DIACSA"
@@ -85,31 +68,16 @@ def EnviaCorreo(Destino, Asunto, MensajeHTML):
     server.quit()
     
 def VerificarToken(TokenIngresado):
-    a = int(TokenIngresado[0])
-    b = int(TokenIngresado[7])
-    if a == 0 or a == 7 or b == 0 or b == 7 or b == a: return False
-    x = int(TokenIngresado[a])
-    y = int(TokenIngresado[b])
-    MinutosAnteriores = x * 10 + y
-    FechaHora_Minutos = datetime.now(pytz.timezone('America/Lima')).strftime("%M")
-    MinutosActuales = int(FechaHora_Minutos)
-    if MinutosActuales < MinutosAnteriores: MinutosActuales = MinutosActuales + 60
-    if MinutosActuales - MinutosAnteriores > 2: return False
-    random.seed(a+b+x+y)
-    Dummy = [random.randint(0,9), random.randint(0,9), random.randint(0,9), random.randint(0,9)]
-    ArrayToken = [-1,-1,-1,-1,-1,-1,-1,-1]
-    ArrayToken[0] = a
-    ArrayToken[7] = b
-    ArrayToken[a] = x
-    ArrayToken[b] = y
-    index = 0
-    for i in range (1,7):
-        if i == a or i == b: continue
-        ArrayToken[i] = Dummy[index]
-        index = index + 1
-    TokenCalculado = "".join(str(entero) for entero in ArrayToken)
-    if TokenCalculado == TokenIngresado: return True
-    else: return False
+    FechaHora_dt = datetime.now(pytz.timezone('America/Lima'))
+    for i in range (120):
+        FechaHora = (FechaHora_dt - timedelta(seconds = i)).strftime("%Y%m%d%H%M%S")
+        Key = "4DM1ND14CSAK3Y"
+        combined_string = FechaHora + Key
+        hash_object = hashlib.sha256(combined_string.encode())
+        hash_hex = hash_object.hexdigest()
+        TokenCalculado = hash_hex[:6].upper()
+        if TokenCalculado == TokenIngresado.upper(): return True
+    return False
     
 
 def ContrasenaEsFuerte(contrasena):
