@@ -13,4 +13,4 @@ Set-ExecutionPolicy Unrestricted -Scope Process
 
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 
-python 3.9.13
+python 3.11
