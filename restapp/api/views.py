@@ -559,7 +559,7 @@ def guardarNoRegistrados(reg):
     return
     
 
-DEBUG = False
+DEBUG = True
 
 
 class restappViewSet(ModelViewSet):
