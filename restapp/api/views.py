@@ -603,15 +603,12 @@ class restappViewSet(ModelViewSet):
                 if DEBUG:
                     print("1")
                 if DEBUG:
-                    actualizarLiveDataNoRegistrado(reg)
-                if DEBUG:
                     print("2")
                 if DEBUG:
-                    guardarHistorialNoRegistrados(reg)
-                if DEBUG:
                     print("3")
-                if DEBUG:
-                    guardarNoRegistrados(reg)
+                guardarHistorialNoRegistrados(reg)
+                guardarNoRegistrados(reg)
+                actualizarLiveDataNoRegistrado(reg)
                 continue
 
             #####################################
