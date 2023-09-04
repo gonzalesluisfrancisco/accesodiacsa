@@ -1,3 +1,5 @@
+from rest_framework.authentication import TokenAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from rest_framework.viewsets import ModelViewSet
 from restapp.models import PostCardIDEvent
@@ -557,50 +559,73 @@ def guardarNoRegistrados(reg):
     return
     
 
+DEBUG = False
+
+
 class restappViewSet(ModelViewSet):
     serializer_class = restappSerializer
     queryset = PostCardIDEvent.objects.all()
 
+    # Token ad6f62d1732f261807694c3385ec9030af572d779
+    # Basic YWRtaW5kaWFjc2E6MTdEaWFjc2E=
+
+    # authentication_classes = [TokenAuthentication]
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def create(self, request):
         data = request.data
 
-        #Validacion de datos
+        # Validacion de datos
         try:
-            #print('DATA QUE LLEGA A LA VISTA CREATE POR DEFECTO')
-            #print(data)
+            # print('DATA QUE LLEGA A LA VISTA CREATE POR DEFECTO')
+            # print(data)
             registros = validacionDataJson(data)
             N = len(registros)
             if N == 0:
                 return JsonResponse({'error': 'Verificar campos'}, status=400)
         except:
             return JsonResponse({'error': 'Error inesperado en campos'}, status=400)
-        
+
         for i in range(N):
             reg = registros[i]
             rcardID = reg[1]
-            print("-------------")
+            if DEBUG:
+                print("-------------")
             try:
-                user = PersonalRegistrado.objects.get(cardidHex=rcardID)    
-                if(user is None):
-                    print("Usuario no encontrado")
+                user = PersonalRegistrado.objects.get(cardidHex=rcardID)
+                if (user is None):
+                    if DEBUG:
+                        print("Usuario no encontrado")
             except:
-                print("Usuario no encontrado except")
-                print("1")
-                actualizarLiveDataNoRegistrado(reg)
-                print("2")
-                guardarHistorialNoRegistrados(reg)
-                print("3")
-                guardarNoRegistrados(reg)
+                if DEBUG:
+                    print("Usuario no encontrado except")
+                if DEBUG:
+                    print("1")
+                if DEBUG:
+                    actualizarLiveDataNoRegistrado(reg)
+                if DEBUG:
+                    print("2")
+                if DEBUG:
+                    guardarHistorialNoRegistrados(reg)
+                if DEBUG:
+                    print("3")
+                if DEBUG:
+                    guardarNoRegistrados(reg)
                 continue
-
 
             #####################################
             try:
-                print("Usuario encontrado. Se registrará en 'Live Data' e 'Historial'")
+                if DEBUG:
+                    print(
+                        "Usuario encontrado. Se registrará en 'Live Data' e 'Historial'")
                 actualizarLiveDataRegistrados(reg)
                 guardarHistorialRegistrados(reg)
-                
+
             except:
-                print("Error en actualizar en base de datos. Se registrará en 'No Registrados' e 'Historial'.")
-                continue                
-        return JsonResponse({'envio': 'OK'}, status=200) #super().create(request)
+                if DEBUG:
+                    print(
+                        "Error en actualizar en base de datos. Se registrará en 'No Registrados' e 'Historial'.")
+                continue
+        # super().create(request)
+        return JsonResponse({'envio': 'OK'}, status=200)
