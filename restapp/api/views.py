@@ -566,8 +566,6 @@ class restappViewSet(ModelViewSet):
     serializer_class = restappSerializer
     queryset = PostCardIDEvent.objects.all()
 
-    # Token ad6f62d1732f261807694c3385ec9030af572d779
-    # Basic YWRtaW5kaWFjc2E6MTdEaWFjc2E=
 
     # authentication_classes = [TokenAuthentication]
     authentication_classes = [BasicAuthentication]
