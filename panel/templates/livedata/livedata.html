@@ -58,47 +58,16 @@
       </table>
     </div>
     {% if perms.panel.change_livedata %}
-    <a href="livedata/agregar" class="btn btn-primary">Ingresar livedata</a>
-    <a href="livedata/eliminar" class="btn btn-danger">Eliminar livedata</a>
-    <!-- <a href="{% url 'livedata_llenar' %}" class="btn btn-success">Llenar Hexa en tabla livedata</a> -->
+    <!-- <a href="livedata/agregar" class="btn btn-primary">Ingresar livedata</a>
+    <a href="livedata/eliminar" class="btn btn-danger">Eliminar livedata</a> -->
     {% endif %}
   </div>
 </form>
 {% endblock%}
 
 {% block scripts %}
-
-<script>
-
-  setInterval(function () {
-    updateData();
-  }, 10000);
-
-  function updateData() {
-    var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    $.ajax({
-      type: "POST",
-      url: "",
-      data: {
-        csrfmiddlewaretoken: csrfToken,
-        Comando: "ObtenerHoraTotal",
-      },
-      success: function (response) {
-        if (response.Estado == "Valido") {
-          document.getElementById("total").innerHTML = response.Total
-          document.getElementById("ultimaactualizacion").innerHTML = response.Hora
-          tabla2.ajax.reload(null, false);
-        }
-      },
-      error: function (xhr, status, error) {
-        return
-      }
-    });
-  }
-
-</script>
-
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-
+{%load static%}
+<script src="{%static 'livedata.js'%}"></script>
 {% endblock %}

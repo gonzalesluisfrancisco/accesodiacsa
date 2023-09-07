@@ -1,5 +1,5 @@
 {% extends '../index_master.html' %}
-
+{%load static%}
 {% block content %}
 <div class="right_col" role="main">
     {%if r2%}
@@ -116,3 +116,6 @@
     </form>
 </div>
 {% endblock%}
+{%block scripts%}
+<script src="{% static 'registrarusuario.js' %}"></script>
+{%endblock%}

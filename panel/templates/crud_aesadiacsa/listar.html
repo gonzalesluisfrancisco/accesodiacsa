@@ -30,14 +30,7 @@
           onchange="EnviarExcel('Eliminar', '2')">
       </div>
       <div class="col-3 text-center" style="margin-top: 40px;">
-        <label for="excelFile3" class="btn btn-danger cus-btn">
-          <i class="fa fa-user-plus"></i><br> Sobreescribir por EXCEL
-        </label>
-        <input type="file" name="excelFile" id="excelFile3" accept=".xlsx, .xls" style="display: none;"
-          onchange="EnviarExcel('Sobreescribir', '3')">
-      </div>
-      <div class="col-3 text-center" style="margin-top: 40px;">
-        <a href="{% url 'agregar' %}" class="btn btn-info"><i class="fa fa-user-plus"></i><br> Agregar a mano</a>
+        <a href="{% url 'agregar' %}" class="btn btn-info"><i class="fa fa-user-plus"></i><br> Agregar manualmente</a>
       </div>
     </div>
   </form>
@@ -86,5 +79,10 @@
     </table>
   </div>
 
+  <button class="btn btn-primary" id="eliminarTablaButton" onclick="eliminarTodo()">Eliminar TODOS los datos</button>
+
+
 </div>
+{%load static%}
+<script src="{%static 'listar.js'%}"></script>
 {% endblock%}

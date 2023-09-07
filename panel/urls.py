@@ -6,7 +6,8 @@ from . import views
 
 urlpatterns = [
     path('test_favicon', views.home_view, name="homeFavicon"),
-    path('index_noautenticado', views.index_noautenticado, name="index_noautenticado"),
+    path('index_noautenticado', views.index_noautenticado,
+         name="index_noautenticado"),
     path('', views.autenticacion, name="autenticacion"),
     path('signout', views.signout, name="signout"),
     path('home', views.index, name="index"),
@@ -19,8 +20,10 @@ urlpatterns = [
     path('livedata/eliminar', views.livedata_eliminar, name="livedata_eliminar"),
     path('livedata/llenar', views.livedata_llenar, name="livedata_llenar"),
     path('marcacion', views.marcacion, name="marcacion"),
-    path('noregistrados', views.noregistrados, name="noregistrados"),  
-    path('registrarusuario', views.registrarusuario, name="registrarusuario"), 
-    path('reset-password/<str:uidb64>/<str:token>/', views.reset_password, name='reset_password'),
-    path('eliminarusuario', views.eliminarusuario, name="eliminarusuario"), 
+    path('marcacion/agregar', views.marcacion_agregar, name="marcacion_agregar"),
+    path('noregistrados', views.noregistrados, name="noregistrados"),
+    path('registrarusuario', views.registrarusuario, name="registrarusuario"),
+    path('reset-password/<str:uidb64>/<str:token>/',
+         views.reset_password, name='reset_password'),
+    path('eliminarusuario', views.eliminarusuario, name="eliminarusuario"),
 ]

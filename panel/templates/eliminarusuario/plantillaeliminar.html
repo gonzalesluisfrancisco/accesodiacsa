@@ -1,5 +1,5 @@
 {% extends '../index_master.html' %}
-
+{%load static%}
 {% block content %}
 <div class="right_col" role="main">
     {%if r2%}
@@ -129,4 +129,5 @@
         </div>
     </form>
 </div>
+<script src="{%static 'eliminarusuario.js'%}"></script>
 {% endblock%}

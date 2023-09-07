@@ -88,12 +88,14 @@
                 <li><a href="{% url 'noregistrados'%}"><i class="fas fa-user-secret"></i>&nbsp;&nbsp;Personas no
                     registradas</a>
                 </li>
+                {% if request.user.is_superuser %}
                 <li><a href="{% url 'registrarusuario'%}"><i class="fas fa-user-plus"></i>&nbsp;&nbsp;Crear nueva
                     cuenta</a>
                 </li>
                 <li><a href="{% url 'eliminarusuario'%}"><i class="fas fa-user-times"></i>&nbsp;&nbsp;Eliminar
                     cuentas</a>
                 </li>
+                {% endif %}
               </ul>
             </div>
           </div>
@@ -223,9 +225,7 @@
 
   <!-- Custom Theme Scripts -->
   <script src="{% static 'custom.min.js' %}"></script>
-
   <!-- Custom Theme Scripts for tables -->
-  <script src="{% static 'app.js' %}"></script>
 
   {% block scripts %}
   {% endblock %}
